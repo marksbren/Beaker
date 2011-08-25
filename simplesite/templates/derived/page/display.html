@@ -1,0 +1,109 @@
+<%inherit file="/base/display.html" />
+<%! import datetime %>
+
+<%def name="heading()">
+	<h1 class="main">Arrivals</h1>
+</%def>
+
+<%def name="head()">
+	<style>
+		#top{
+			padding:0;
+			margin:0;
+			border-bottom-style:solid;
+			border-width:5px;
+			border-color:rgb(100,100,100);
+		}
+		body {
+			font-size: 100px;
+			color: rgb(255,255,255);
+			background-color: #000000;
+			font-family: Arial, Helvetica, sans-serif;
+			/*-webkit-transform: rotate(270deg);
+			-webkit-transform-origin: bottom left;*/
+		}
+		h1 {
+			font-size: 1em;
+			font-weight: normal;
+			margin:0;
+		}
+		#names{
+			padding:0;
+			margin:0;
+			}
+		#names li {
+			list-style-type:none;
+		}
+		#content{
+
+		}
+		#sidebar {
+	 		float: right;
+			min-height: 470px;
+			overflow: visible;
+			width: 45%;
+		}
+		#page {
+		  width: 100%;
+		  text-align: left;
+		  margin-top: 0px;
+		  margin-left: auto;
+		  margin-right: auto;
+		}
+		#blinking{
+			color: red;
+			text-decoration: blink;
+		}
+	</style>
+
+</%def>
+<div id="page">
+<div id="sidebar">
+
+<ul id="names">
+<% j=0 %>
+% for checkin_feed in c.checkins:
+<% j = j+1 %>
+<li>
+% if checkin_feed.timestamp + datetime.timedelta(minutes=3) > datetime.datetime.now():
+	<div id="blinking">Now Arriving</div>
+% else:
+<%
+	difference = datetime.datetime.now() - checkin_feed.timestamp
+	name_color1=255 - int(difference.seconds/15)
+	if name_color1 < 0:
+		name_color1 = 0
+%>
+	<style>
+		#darkening${j}{
+			color: rgb(${name_color1},${name_color1},${name_color1});
+		}
+	</style>
+	<div id="darkening${j}">${difference.seconds / 60} min ago</div>
+% endif
+	</li>
+% endfor
+</div>
+<div id="content">
+<ul id="names">
+<% i = 0 %>
+% for checkin_feed in c.checkins:
+<li>
+<%
+	i = i + 1
+	difference = datetime.datetime.now() - checkin_feed.timestamp
+	name_color=255 - int(difference.seconds/15)
+	if name_color < 0:
+		name_color = 0
+%>
+	<style>
+		#darkening${i}{
+			color: rgb(${name_color},${name_color},${name_color});
+		}
+	</style>
+	<div id="darkening${i}">${checkin_feed.firstname}</div>
+	</li>
+% endfor
+</ul>
+</div>
+</div>

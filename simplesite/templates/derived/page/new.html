@@ -1,0 +1,15 @@
+<%inherit file="/base/index.html" />
+
+<%def name="heading()">
+	<h1 class="main">Create a Whitelist Entry</h1>
+</%def>
+
+${h.form(h.url(controller='page', action='create'), method='post')}
+First Name: 	${h.text('firstname')}
+Last Name:		${h.text('lastname')} 
+Response: 		${h.text('response')}
+Number: 		${h.text('number')}
+Filename: 	${h.text('filename')}
+	${h.submit('submit', 'Create Page')}
+${h.end_form()}
+

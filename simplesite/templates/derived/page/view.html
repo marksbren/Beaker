@@ -1,0 +1,17 @@
+<%inherit file="/base/index.html"/>
+
+<%def name="title()">${c.whitelist.firstname} ${c.whitelist.lastname}</%def>
+<%def name="heading()"><h1>${c.whitelist.firstname} ${c.whitelist.lastname}</h1></%def>
+
+${c.whitelist.number}
+<p>Count: ${c.whitelist.count}</p>
+<%def name="footer()">
+## Then add our page links
+<p>
+	${h.link_to('All Pages', h.url(controller='page', action='list', id=None))}
+	${h.link_to('New Page', h.url(controller='page', action='new', id=None))}
+	${h.link_to('Edit Page', h.url(controller='page', action='edit', id=c.whitelist.id))}
+	${h.link_to('Delete Page', h.url(controller='page', action='delete', id=c.whitelist.id))}
+</p>
+${parent.footer()}
+</%def>

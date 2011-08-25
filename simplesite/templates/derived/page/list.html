@@ -1,0 +1,13 @@
+<%inherit file="/base/index.html" />
+
+<%def name="heading()">
+	<h1 class="main">Whitelist</h1>
+</%def>
+
+<ul id="names">
+% for whitelist1 in c.whitelist_entries:
+<li>
+	${whitelist1.firstname} ${whitelist1.lastname} [${h.link_to('go', h.url(controller='page', action='view', id=whitelist1.id))}]
+</li>
+% endfor
+</ul>

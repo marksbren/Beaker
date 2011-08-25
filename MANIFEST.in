@@ -1,0 +1,3 @@
+include simplesite/config/deployment.ini_tmpl
+recursive-include simplesite/public *
+recursive-include simplesite/templates *

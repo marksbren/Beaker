@@ -1,0 +1,17 @@
+<%inherit file="/base/index.html" />
+
+<%def name="heading()">
+	<h1 class="main">Editing ${c.name}</h1>
+</%def>
+
+<p>Editing the source code for the ${c.name} page:</p>
+
+${h.form(h.url(controller='page', action='save', id=request.urlvars['id']), method='post')}
+First Name: 	${h.text('firstname')}
+Last Name:		${h.text('lastname')}
+Response:		${h.text('response')}
+Number: 		${h.text('number')}
+Filename: 	${h.text('filename')}
+	${h.submit('submit', 'Save Changes')}
+${h.end_form()}
+

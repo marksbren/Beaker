@@ -1,0 +1,28 @@
+<%inherit file="/base/index.html" />
+
+<%def name="heading()">
+	<h1 class="main">GrandCentral</h1>
+</%def>
+
+${h.form(h.url(controller='page', action='create_passcode'), method='post')}
+Passcode: 	${h.text('passcode')}
+	${h.submit('submit', 'Create Passcode')}
+${h.end_form()}
+Passcodes: <br />
+<ul id="names">
+% for passcodes in c.passcode_entries:
+<li>
+	${passcodes.created} ${passcodes.passcode} ${h.link_to('delete', h.url(controller='page', action='delete_passcode', id=passcodes.id))}
+</li>
+% endfor
+</ul>
+${h.link_to('Whitelist', h.url(controller='page', action='list'))}
+Events: <br />
+<ul id="names">
+% for events in c.event_log_entries:
+<li>
+	${events.timestamp} ${events.event} ${events.query}
+</li>
+% endfor
+</ul>
+${h.link_to('Whitelist', h.url(controller='page', action='list'))}
