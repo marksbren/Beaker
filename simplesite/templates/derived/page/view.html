@@ -5,6 +5,16 @@
 
 ${c.whitelist.number}
 <p>Count: ${c.whitelist.count}</p>
+<p>Response: ${c.whitelist.response}</p>
+
+${h.form(h.url(controller='page', action='edit_response', id=c.whitelist.id), method='post')}
+Update Response:${h.text('response')}
+${h.submit('submit', 'Update Response')}
+${h.end_form()}
+
+
+
+
 <%def name="footer()">
 ## Then add our page links
 <p>

@@ -98,6 +98,11 @@ class PasscodeForm(formencode.Schema):
 	filter_extra_fields = True
 	passcode = formencode.validators.String(not_empty=True)
 
+class ViewForm(formencode.Schema):
+	allow_extra_fields = True
+	filter_extra_fields = True
+	response = formencode.validators.String(not_empty=True)
+
 class PageController(BaseController):
 
 	#TODO: restrict to Twilio user-agent using HTTP_USER_AGENT
@@ -132,16 +137,26 @@ class PageController(BaseController):
 
 		# The texter is recognized
 		else:
-			SMS_Send(INCOMING ,CALLER_ID, whitelist.response)
-			Insert_Event_Log(whitelist.id, '/whitelist/entry', 'number=%s' % INCOMING)
-			send_open_signal()	
-			Add_Checkin(whitelist.firstname,whitelist.number)
-			if whitelist.count is None:
-				whitelist.count = 1
+			# If they checkin within 20 minutes they don't get points
+			checkin_q = meta.Session.query(model.Checkin_feed)
+			twenty_minutes_ago = datetime.datetime.now()-datetime.timedelta(minutes=20)
+			last_checkin = checkin_q.filter_by(number=whitelist.number).order_by(model.Checkin_feed.timestamp.desc()).first()
+
+			if last_checkin.timestamp < twenty_minutes_ago:
+				#if the checkin was okay, add it to the feed
+				Add_Checkin(whitelist.firstname,whitelist.number)
+				if whitelist.count is None:
+					whitelist.count = 1
+				else:
+					whitelist.count = whitelist.count + 1
+				meta.Session.update(whitelist)
+				meta.Session.commit()
+				SMS_Send(INCOMING ,CALLER_ID, whitelist.response)
 			else:
-				whitelist.count = whitelist.count + 1
-			meta.Session.update(whitelist)
-			meta.Session.commit()
+				#send the open signal, but reluctantly
+				SMS_Send(INCOMING ,CALLER_ID, "Hmmm... you seem to be coming offen... I'll let you in, but you're not getting credit!")
+			send_open_signal()	
+			Insert_Event_Log(whitelist.id, '/whitelist/entry', 'number=%s' % INCOMING)
 
 
 	@authorize(ValidAuthKitUser())
@@ -270,4 +285,24 @@ class PageController(BaseController):
 		response.headers['location'] = h.url(controller='page',
 			action='home')
 		return "Moved temporarily"
-		
+	
+
+	@restrict('POST')
+	@authorize(ValidAuthKitUser())
+	@validate(schema=ViewForm(), form='edit')
+	def edit_response(self, id=None):
+		if id is None:
+			abort(404)
+		whitelist_q = meta.Session.query(model.Whitelist1)
+		whitelist = whitelist_q.filter_by(id=id).first()
+		if whitelist is None:
+			abort(404)
+		for k, v in self.form_result.items():
+			setattr(whitelist, k, v)
+		meta.Session.update(whitelist)
+		meta.Session.commit()
+		# issue HTTP redirect
+		response.status_int = 302
+		response.headers['location'] = h.url(controller='page',
+			action='view', id=whitelist.id)
+		return "Moved"
